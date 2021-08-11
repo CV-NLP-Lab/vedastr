@@ -342,6 +342,7 @@ common = dict(
             dict(type='FileHandler', level='INFO'),
         ),
     ),
+    writer=dict(type="SummaryWriter"),
     cudnn_deterministic=False,
     cudnn_benchmark=True,
     metric=dict(type='Accuracy'),

@@ -104,6 +104,9 @@ class TrainRunner(InferenceRunner):
             (self.metric.avg['acc']['true'], self.metric.avg['edit']))
         self.logger.info(f'\n{self.metric.predict_example_log}')
 
+        self.writer.add_scalar('EVAL/acc', self.metric.avg['acc']['true'], self.iter)
+        self.writer.add_scalar('EVAL/edit', self.metric.avg['edit'], self.iter)
+
     def _train_batch(self, img, label):
         self.model.train()
 
@@ -140,6 +143,11 @@ class TrainRunner(InferenceRunner):
                    self.metric.avg['acc']['true'], self.metric.avg['edit']))
 
             self.logger.info(f'\n{self.metric.predict_example_log}')
+
+            self.writer.add_scalar('TRAIN/acc', self.metric.avg['acc']['true'], self.iter)
+            self.writer.add_scalar('TRAIN/edit', self.metric.avg['edit'], self.iter)
+            self.writer.add_scalar('TRAIN/lr', self.lr[0], self.iter)
+            self.writer.add_scalar('TRAIN/loss', gather_loss.item(), self.iter)
 
     def _validate_batch(self, img, label, exclude_num):
         self.model.eval()
@@ -196,6 +204,7 @@ class TrainRunner(InferenceRunner):
             'Ending of training, save the model of the last iterations.')
         if self.rank == 0:
             self.save_model(out_dir=self.workdir, filename='final.pth')
+        self.writer.close()
 
     @property
     def epoch(self):

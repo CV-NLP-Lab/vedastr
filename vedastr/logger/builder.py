@@ -5,6 +5,8 @@ import time
 
 import torch.distributed as dist
 
+from torch.utils.tensorboard import SummaryWriter
+
 
 def build_logger(cfg, default_args):
     timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
@@ -46,3 +48,9 @@ def build_logger(cfg, default_args):
         logger.addHandler(instance)
 
     return logger
+
+def build_writer(cfg, default_args):
+    log_dir = os.path.join(default_args.get('workdir', ''), 'log')
+    os.makedirs(log_dir, exist_ok=True)
+    writer = SummaryWriter(log_dir=log_dir)
+    return writer

@@ -7,7 +7,7 @@ from torch.backends import cudnn
 from ..dataloaders import build_dataloader
 from ..dataloaders.samplers import build_sampler
 from ..datasets import build_datasets
-from ..logger import build_logger
+from ..logger import build_logger, build_writer
 from ..metrics import build_metric
 from ..transforms import build_transform
 from ..utils import get_dist_info, init_dist_pytorch
@@ -28,6 +28,9 @@ class Common(object):
         self.workdir = cfg.get('workdir')
         self.distribute = cfg.get('distribute', False)
 
+        # build writer
+        writer_cfg = cfg.get('writer', dict(type='SummaryWriter'))
+
         # set gpu devices
         self.use_gpu = self._set_device()
 
@@ -37,6 +40,7 @@ class Common(object):
 
         self.rank, self.world_size = get_dist_info()
         self.logger = self._build_logger(logger_cfg)
+        self.writer = self._build_writer(writer_cfg)
 
         # set cudnn configuration
         self._set_cudnn(
@@ -59,6 +63,9 @@ class Common(object):
 
     def _build_logger(self, cfg):
         return build_logger(cfg, dict(workdir=self.workdir))
+
+    def _build_writer(self, cfg):
+        return build_writer(cfg, dict(workdir=self.workdir))
 
     def _set_device(self):
         self.gpu_num = torch.cuda.device_count()
