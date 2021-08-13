@@ -104,8 +104,8 @@ class TrainRunner(InferenceRunner):
             (self.metric.avg['acc']['true'], self.metric.avg['edit']))
         self.logger.info(f'\n{self.metric.predict_example_log}')
 
-        self.writer.add_scalar('EVAL/acc', self.metric.avg['acc']['true'], self.iter)
-        self.writer.add_scalar('EVAL/edit', self.metric.avg['edit'], self.iter)
+        self.writer.add_scalar('EVAL/acc', self.metric.avg['acc']['true'], self.iter + 1)
+        self.writer.add_scalar('EVAL/edit', self.metric.avg['edit'], self.iter + 1)
 
     def _train_batch(self, img, label):
         self.model.train()

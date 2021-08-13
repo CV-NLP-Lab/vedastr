@@ -7,8 +7,8 @@ samples_per_gpu = 48
 size = (48, 192)
 mean, std = 0.5, 0.5
 
-character = "abcdefghijklmnopqrstuvwxyz"
-sensitive = False
+character = "'-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+sensitive = True
 batch_max_length = 25
 
 norm_cfg = dict(type='SyncBN')
@@ -342,7 +342,7 @@ common = dict(
             dict(type='FileHandler', level='INFO'),
         ),
     ),
-    writer=dict(type="SummaryWriter"),
+    writer=dict(type='SummeryWriter'),
     cudnn_deterministic=False,
     cudnn_benchmark=True,
     metric=dict(type='Accuracy'),
@@ -361,16 +361,12 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = '/home/astrashnov/data/data_lmdb_release/'
+data_root = '/home/astrashnov/data/iam_data/lmdb_release/'
 
 ###############################################################################
 # 3. test
 test_root = data_root + 'evaluation/'
-test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
-                     'IIIT5k_3000', 'SVT', 'SVTP']
-
-test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
-                     **test_dataset_params) for f_name in test_folder_names]
+test_dataset = dict(type='LmdbDataset', root=test_root, **test_dataset_params)
 
 test = dict(
     data=dict(
@@ -392,14 +388,8 @@ test = dict(
 
 ###############################################################################
 ## MJ dataset
-train_root_mj = data_root + 'training/MJ/'
-mj_folder_names = ['MJ_test', 'MJ_valid', 'MJ_train']
-## ST dataset
-train_root_st = data_root + 'training/ST/'
-
-train_dataset_mj = [dict(type='LmdbDataset', root=train_root_mj + folder_name)
-                    for folder_name in mj_folder_names]
-train_dataset_st = [dict(type='LmdbDataset', root=train_root_st)]
+train_root = data_root + 'training/'
+train_dataset = dict(type='LmdbDataset', root=train_root, **dataset_params)
 
 # valid
 valid_root = data_root + 'validation/'
@@ -429,29 +419,9 @@ train = dict(
                 type='DataLoader',
                 samples_per_gpu=samples_per_gpu,
                 workers_per_gpu=4,
-            ),
-            sampler=dict(
-                type='BalanceSampler',
-                samples_per_gpu=samples_per_gpu,
                 shuffle=True,
-                oversample=True,
-                seed=common['seed'],  # if not set, default seed is 0.
             ),
-            dataset=dict(
-                type='ConcatDatasets',
-                datasets=[
-                    dict(
-                        type='ConcatDatasets',
-                        datasets=train_dataset_mj,
-                    ),
-                    dict(
-                        type='ConcatDatasets',
-                        datasets=train_dataset_st,
-                    ),
-                ],
-                batch_ratio=[0.5, 0.5],
-                **dataset_params,
-            ),
+            dataset=train_dataset,
             transform=train_transforms,
         ),
         val=dict(
@@ -461,10 +431,7 @@ train = dict(
                 workers_per_gpu=4,
                 shuffle=False,
             ),
-            dataset=dict(
-                type='ConcatDatasets',
-                datasets=test_dataset,
-            ),
+            dataset=valid_dataset,
             transform=inference['transform'],
         ),
     ),
@@ -481,7 +448,7 @@ train = dict(
     snapshot_interval=20000,
     save_best=True,
     resume=dict(
-        checkpoint='workdir/cstr_MJSST_MC/iter120000.pth',
+        checkpoint='workdir/cstr_original_LC_UC_Num_Pc3/best_norm.pth',
         resume_optimizer=True,
         resume_lr_scheduler=True,
         resume_meta=True,

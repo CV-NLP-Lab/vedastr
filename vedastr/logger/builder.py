@@ -50,7 +50,8 @@ def build_logger(cfg, default_args):
     return logger
 
 def build_writer(cfg, default_args):
-    log_dir = os.path.join(default_args.get('workdir', ''), 'log')
+    work_dir = default_args.get('workdir')
+    log_dir = os.path.join(work_dir if work_dir is not None else '', 'log')
     os.makedirs(log_dir, exist_ok=True)
     writer = SummaryWriter(log_dir=log_dir)
     return writer
