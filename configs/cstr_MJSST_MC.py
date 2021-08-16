@@ -361,7 +361,7 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = '/home/astrashnov/data/data_lmdb_release/'
+data_root = '/DATA/data_lmdb_release/'
 
 ###############################################################################
 # 3. test
@@ -481,7 +481,7 @@ train = dict(
     snapshot_interval=20000,
     save_best=True,
     resume=dict(
-        checkpoint='workdir/cstr_MJSST_MC/iter120000.pth',
+        checkpoint='workdir/cstr_MJSST_MC/final.pth',
         resume_optimizer=True,
         resume_lr_scheduler=True,
         resume_meta=True,

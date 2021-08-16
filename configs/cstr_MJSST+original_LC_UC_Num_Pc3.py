@@ -407,8 +407,8 @@ train_transforms = [
     dict(type='ToTensor'),
 ]
 
-max_iterations = 15000
-milestones = [5000, 10000]
+max_iterations = 30000
+milestones = [10000, 20000]
 
 # 4. train
 train = dict(
@@ -439,15 +439,15 @@ train = dict(
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,
-                      warmup_epochs=0.2,
+                      warmup_epochs=4000,
                       ),
     max_iterations=max_iterations,
     log_interval=10,
     trainval_ratio=2000,
-    snapshot_interval=20000,
+    snapshot_interval=40000,
     save_best=True,
     resume=dict(
-        checkpoint='workdir/cstr_MJSST_LC_UC_Num_Pc3/best_acc.pth',
+        checkpoint='workdir/cstr_MJSST_LC_UC_Num_Pc3/best_norm.pth',
         resume_optimizer=False,
         resume_lr_scheduler=False,
         resume_meta=False,

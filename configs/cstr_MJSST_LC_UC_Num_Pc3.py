@@ -360,7 +360,7 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = '/home/astrashnov/data/data_lmdb_release/'
+data_root = '/DATA/data_lmdb_release/'
 
 ###############################################################################
 # 3. test

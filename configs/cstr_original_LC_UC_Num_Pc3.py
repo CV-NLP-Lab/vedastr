@@ -440,7 +440,7 @@ train = dict(
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,
-                      warmup_epochs=0.2,
+                      warmup_epochs=3,
                       ),
     max_iterations=max_iterations,
     log_interval=10,
@@ -448,7 +448,7 @@ train = dict(
     snapshot_interval=20000,
     save_best=True,
     resume=dict(
-        checkpoint='workdir/cstr_original_LC_UC_Num_Pc3/best_norm.pth',
+        checkpoint='workdir/cstr_original_LC_UC_Num_Pc3/final.pth',
         resume_optimizer=True,
         resume_lr_scheduler=True,
         resume_meta=True,
