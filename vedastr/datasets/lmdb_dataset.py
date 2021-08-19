@@ -5,11 +5,12 @@ import logging
 import lmdb
 import numpy as np
 import six
-from PIL import Image
+from PIL import Image, ImageFile
 
 from .base import BaseDataset
 from .registry import DATASETS
 
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 logger = logging.getLogger()
 
 

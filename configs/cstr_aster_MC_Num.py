@@ -7,7 +7,7 @@ samples_per_gpu = 48
 size = (48, 192)
 mean, std = 0.5, 0.5
 
-character = "abcdefghijklmnopqrstuvwxyz"
+character = "0123456789abcdefghijklmnopqrstuvwxyz"
 sensitive = False
 batch_max_length = 25
 
@@ -360,12 +360,16 @@ test_dataset_params = dict(
     character=character,
 )
 
-data_root = '/home/astrashnov/data/iam_data/lmdb_release/'
+data_root = '/DATA/text_recognition_datasets/'
 
 ###############################################################################
 # 3. test
 test_root = data_root + 'evaluation/'
-test_dataset = dict(type='LmdbDataset', root=test_root, **test_dataset_params)
+test_folder_names = ['CUTE80', 'IC03_867', 'IC13_1015', 'IC15_2077',
+                     'IIIT5k_3000', 'SVT', 'SVTP']
+
+test_dataset = [dict(type='LmdbDataset', root=test_root + f_name,
+                     **test_dataset_params) for f_name in test_folder_names]
 
 test = dict(
     data=dict(
@@ -386,9 +390,13 @@ test = dict(
 )
 
 ###############################################################################
-## MJ dataset
-train_root = data_root + 'training/'
-train_dataset = dict(type='LmdbDataset', root=train_root, **dataset_params)
+## NIPS dataset
+train_root_nips = data_root + 'training/NIPS2014/'
+## CVPR dataset
+train_root_cvpr = data_root + 'training/CVPR2016/'
+
+train_dataset_nips = [dict(type='LmdbDataset', root=train_root_nips)]
+train_dataset_cvpr = [dict(type='LmdbDataset', root=train_root_cvpr)]
 
 # valid
 valid_root = data_root + 'validation/'
@@ -407,8 +415,8 @@ train_transforms = [
     dict(type='ToTensor'),
 ]
 
-max_iterations = 100000
-milestones = [45000, 75000]
+max_iterations = 420000
+milestones = [150000, 250000]
 
 # 4. train
 train = dict(
@@ -418,9 +426,29 @@ train = dict(
                 type='DataLoader',
                 samples_per_gpu=samples_per_gpu,
                 workers_per_gpu=4,
-                shuffle=True,
             ),
-            dataset=train_dataset,
+            sampler=dict(
+                type='BalanceSampler',
+                samples_per_gpu=samples_per_gpu,
+                shuffle=True,
+                oversample=True,
+                seed=common['seed'],  # if not set, default seed is 0.
+            ),
+            dataset=dict(
+                type='ConcatDatasets',
+                datasets=[
+                    dict(
+                        type='ConcatDatasets',
+                        datasets=train_dataset_nips,
+                    ),
+                    dict(
+                        type='ConcatDatasets',
+                        datasets=train_dataset_cvpr,
+                    ),
+                ],
+                batch_ratio=[0.5, 0.5],
+                **dataset_params,
+            ),
             transform=train_transforms,
         ),
         val=dict(
@@ -430,7 +458,10 @@ train = dict(
                 workers_per_gpu=4,
                 shuffle=False,
             ),
-            dataset=valid_dataset,
+            dataset=dict(
+                type='ConcatDatasets',
+                datasets=test_dataset,
+            ),
             transform=inference['transform'],
         ),
     ),
@@ -439,17 +470,17 @@ train = dict(
     lr_scheduler=dict(type='StepLR',
                       iter_based=True,
                       milestones=milestones,
-                      warmup_epochs=6,
+                      warmup_epochs=0.2,
                       ),
     max_iterations=max_iterations,
     log_interval=10,
     trainval_ratio=2000,
-    snapshot_interval=110000,
+    snapshot_interval=20000,
     save_best=True,
     resume=dict(
-        checkpoint='workdir/cstr_MJSST_MC/best_norm.pth',
-        resume_optimizer=False,
-        resume_lr_scheduler=False,
-        resume_meta=False,
+        checkpoint='workdir/cstr_aster_MC_Num/best_norm.pth',
+        resume_optimizer=True,
+        resume_lr_scheduler=True,
+        resume_meta=True,
     ),
 )

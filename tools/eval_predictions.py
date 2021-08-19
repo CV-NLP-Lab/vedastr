@@ -13,7 +13,10 @@ def get_dict(filename, alphabet="'-.0123456789abcdefghijklmnopqrstuvwxyzABCDEFGH
         l = line.strip('\n')
         if len(l) == 0:
             continue
-        img_path, label = l.split()[:2]
+        try:
+            img_path, label = l.split()[:2]
+        except:
+            img_path, label = l.strip(), ''
         if not set(label.lower()).issubset(alphabet):
             continue
         word_dict[pathlib.PurePath(img_path).name] = label

@@ -447,5 +447,10 @@ train = dict(
     trainval_ratio=2000,
     snapshot_interval=20000,
     save_best=True,
-    resume=None,
+    resume=dict(
+        checkpoint='workdir/cstr_original_MC/iter100000.pth',
+        resume_optimizer=True,
+        resume_lr_scheduler=True,
+        resume_meta=True,
+    ),
 )
